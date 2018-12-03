@@ -1,10 +1,10 @@
-(defproject smartcard "0.1.1"
+(defproject smartcard "0.1.2"
   :description "Simple library for Smartcards"
   :url "http://github.com/profitware/smartcard"
   :license {:name "MIT License"
             :url "https://opensource.org/licenses/MIT"}
-  :plugins [[jonase/eastwood "0.2.5"]
-            [lein-cljfmt "0.5.7"]
+  :plugins [[jonase/eastwood "0.3.4"]
+            [lein-cljfmt "0.6.2"]
             [lein-bump-version "0.1.6"]]
   :cljfmt {:remove-consecutive-blank-lines? false}
   :aliases {"lint" ["do" ["cljfmt" "check"] ["eastwood"]]

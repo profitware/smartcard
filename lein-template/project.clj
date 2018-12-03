@@ -1,4 +1,4 @@
-(defproject smartcard/lein-template "0.1.1"
+(defproject smartcard/lein-template "0.1.2"
   :description "Smartcard Leiningen template"
   :url "http://github.com/profitware/smartcard"
   :scm {:dir ".."}

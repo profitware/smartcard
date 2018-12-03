@@ -4,7 +4,7 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/tools.namespace "0.2.11"]
                  [jline "0.9.94"]
-                 [smartcard "0.1.1"]]
+                 [smartcard "0.1.2"]]
   :jvm-opts ["-Dsun.security.smartcardio.library=/usr/lib64/libpcsclite.so.1"]
   :main ^:skip-aot {{name}}.hello-world
   :target-path "target/%s"
