@@ -14,5 +14,6 @@
              [".gitignore" (render "gitignore" data)]
              ["project.clj" (render "project.clj" data)]
              ["README.md" (render "README.md" data)]
-             ["src/{{sanitized}}/sokoban.clj" (render "sokoban.clj" data)]
-             ["src/{{sanitized}}/hello_world.clj" (render "hello_world.clj" data)])))
+             ["src/java/{{sanitized}}/Sokoban.java" (render "Sokoban.java" data)]
+             ["src/clojure/{{sanitized}}/sokoban.clj" (render "sokoban.clj" data)]
+             ["src/clojure/{{sanitized}}/hello_world.clj" (render "hello_world.clj" data)])))

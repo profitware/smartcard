@@ -1,5 +1,6 @@
 (ns {{name}}.sokoban
   (:require [smartcard.core :refer [defsmartcard
+                                    with-simulator-applets
                                     bytes-to-str]])
   (:import (jline Terminal)))
 
@@ -19,18 +20,23 @@
   (.transmit card [0x10 0x40 0x00 0x00 0x00]))
 
 
-(defsmartcard sokoban [0x4f 0x46 0x46 0x5a 0x4f 0x4e 0x45 0x32 0x10 0x01]
-  (doall (for [line (->> (.transmit card [0x10 0x30 0x00 0x00 0x00])
-                         .getData
-                         bytes-to-str
-                         (partition 12)
-                         (map (partial apply str)))]
-           (println line))))
+(def sokoban-aid [0x4f 0x46 0x46 0x5a 0x4f 0x4e 0x45 0x32 0x10 0x01])
+(def sokoban-classname "{{sanitized}}.Sokoban")
+
+
+(with-simulator-applets {sokoban-aid sokoban-classname}
+  (defsmartcard sokoban sokoban-aid
+    (doall (for [line (->> (.transmit card [0x10 0x30 0x00 0x00 0x00])
+                           .getData
+                           bytes-to-str
+                           (partition 12)
+                           (map (partial apply str)))]
+             (println line)))))
 
 
 (defn -main [& [steps]]
   (let [term (Terminal/getTerminal)
-        remaining-steps (atom steps)]
+        remaining-steps (atom (or steps "x"))]
     (while true
       (print "\033[H\033[2J")
       (sokoban (case (if @remaining-steps
@@ -40,7 +46,8 @@
                            \u 105 \U 105
                            \l 106 \L 106
                            \d 107 \D 107
-                           \r 108 \R 108))
+                           \r 108 \R 108
+                           \x 32))
                        (.readCharacter term System/in))
                  105 up
                  106 left

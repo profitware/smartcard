@@ -12,7 +12,7 @@ Prerequisites include installed `pcsc-lite` and `pcsc-tools` software and `pscsd
 
 To install, add the following to your project `:dependencies`:
 
-    [smartcard "0.1.2"]
+    [smartcard "0.1.3"]
 
 Or use the [Leiningen](https://leiningen.org/) template to build a new application from scratch:
 

@@ -3,7 +3,8 @@
            (javax.smartcardio TerminalFactory
                               CommandAPDU
                               CardException)
-           (com.licel.jcardsim.smartcardio JCardSimProvider)
+           (com.licel.jcardsim.smartcardio JCardSimProvider
+                                           JCSTerminal)
            (javacard.framework ISO7816)))
 
 
@@ -45,11 +46,11 @@
   (doall (map #(let [[index [aid classname]] %
                      data (concat [(count aid)]
                                   aid
-                                  [5 0 0 2 0x0f 0x0f])]
-                 (assert (= (.getSW (.transmit card (concat [0x80 0xb8 0 0]
-                                                            [(count data)]
-                                                            data)))
-                            0x9000)))
+                                  [5 0 0 2 0x0f 0x0f])
+                     result (.transmit card (concat [0x80 0xb8 0 0]
+                                                    [(count data)]
+                                                    data))]
+                 (assert (= (.getSW result) 0x9000)))
               (map-indexed vector simulator-applets))))
 
 
@@ -62,31 +63,55 @@
               (range (count simulator-applets)))))
 
 
-(defn get-smartcard [& [terminal-filter-fn simulator-applets]]
+(defn- get-smartcard-simulator-inner [terminal-filter-fn simulator-applets]
   (when-not (Security/getProvider "jCardSim")
     (Security/addProvider (JCardSimProvider.)))
   (when simulator-applets
     (set-simulator-applets! simulator-applets))
+  (TerminalFactory/getInstance "jCardSim" nil))
+
+
+(def ^:private get-smartcard-simulator (memoize get-smartcard-simulator-inner))
+
+
+(defn- install-applets-for-simulator-inner-factory [terminal-filter-fn simulator-applets]
+  (memoize (fn [terminal card]
+             (when simulator-applets
+               (when (identical? (class terminal)
+                                 JCSTerminal)
+                 (install-simulator-applets! card simulator-applets))
+               (unset-simulator-applets! simulator-applets)))))
+
+
+(def ^:private install-applets-for-simulator-factory (memoize install-applets-for-simulator-inner-factory))
+
+
+(defn- get-terminal-by-factory-inner [terminal-factory]
+  (try
+    (-> terminal-factory
+        .terminals
+        .list)
+    (catch CardException _
+      nil)))
+
+
+(def ^:private get-terminal-by-factory (memoize get-terminal-by-factory-inner))
+
+
+(defn get-smartcard [& [terminal-filter-fn simulator-applets]]
   (let [terminal-factories [(TerminalFactory/getDefault)
-                            (TerminalFactory/getInstance "jCardSim" nil)]
+                            (get-smartcard-simulator terminal-filter-fn simulator-applets)]
         terminals (apply concat
-                         (map #(try
-                                 (-> %
-                                     .terminals
-                                     .list)
-                                 (catch CardException _
-                                   nil))
+                         (map get-terminal-by-factory
                               terminal-factories))
         terminal (first (filter (or terminal-filter-fn
                                     #(.isCardPresent %))
                                 terminals))
         conn (.connect terminal "*")
         channel (.getBasicChannel conn)
-        card (->SmartCard conn channel)]
-    (when simulator-applets
-      (->> simulator-applets
-           (install-simulator-applets! card)
-           (unset-simulator-applets!)))
+        card (->SmartCard conn channel)
+        install-applets! (install-applets-for-simulator-factory terminal-filter-fn simulator-applets)]
+    (install-applets! terminal card)
     card))
 
 

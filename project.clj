@@ -1,4 +1,4 @@
-(defproject smartcard "0.1.2"
+(defproject smartcard "0.1.3"
   :description "Simple library for Smartcards"
   :url "http://github.com/profitware/smartcard"
   :license {:name "MIT License"
@@ -9,9 +9,6 @@
   :cljfmt {:remove-consecutive-blank-lines? false}
   :aliases {"lint" ["do" ["cljfmt" "check"] ["eastwood"]]
             "test" ["lint"]}
-  :source-paths ["src/clojure"]
-  :java-source-paths ["src/java"]
-  :javac-options ["-target" "1.8" "-source" "1.8"]
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [com.licel/jcardsim "2.2.2"]]
   :profiles {:1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
